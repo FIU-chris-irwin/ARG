@@ -18,7 +18,8 @@ def main():
     args = parser.parse_args()
 
     output_file = args.output
-    if args.minconf == -1:
+    minconf = int(args.minconf)
+    if minconf == -1:
         print('Minconf is -1;exiting without writing file')
         exit()
         
