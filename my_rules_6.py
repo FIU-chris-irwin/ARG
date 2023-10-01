@@ -17,15 +17,32 @@ def main():
 
     args = parser.parse_args()
 
+    minsup = int(args.minsup)
+    minconf = float(args.minconf)
+    input_file = args.input
     output_file = args.output
-    minconf = int(args.minconf)
+    
     if minconf == -1:
         print('Minconf is -1;exiting without writing file')
         exit()
         
+    # hash table for item counts
+    item_counts = {}
+
+    with open(input_file, 'r') as file:
+        for line in file:
+            # spit into list of that contains [transaction ID, item number]
+            transaction_datum = line.split()
+            transaction_id, item_number = map(int, transaction_datum)
+            # update hash table
+            if item_number in item_counts:
+                    item_counts[item_number] += 1
+            else:
+                    item_counts[item_number] = 1
     
-    with open(output_file, 'w') as f:
-        f.write(f"output test\n")
+    with open(output_file, 'w') as output:
+        for item, count in item_counts.items():
+             output.write(f"Item {item}: {count} times\n")
 
 if __name__ == "__main__":
     main()
