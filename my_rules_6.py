@@ -1,8 +1,8 @@
 # Phase 1:
-# Read input
+# Read input - done 
 # Generate F1
 # Create skeleton code
-# Create functions to generate output files
+# Create functions to generate output files 
 # Write code needed for plots
 # Initial Report & Current Draft
 
@@ -38,7 +38,19 @@ def read_input(input_file):
     
     return item_counts, transactions
 
+def generate_f1(transactions, minsup):
+    """
+    takes a dictionary of transactions with support counts, and a minimum support count;  returns a sorted list of items that  
+    """
+    pass
+
+def write_output(output_file):
+    """
+    writes three different output files that describe various aspects of the association rules
+    """
+
 def main():
+    # Get the arguments from terminal and assign to variables
     parser = argparse.ArgumentParser(description="Association Rule Generator")
     parser.add_argument("--minsup", required=True, help="minimum support count")
     parser.add_argument("--minconf", required=True, help="minimum confidence")
@@ -52,6 +64,7 @@ def main():
     input_file = args.input
     output_file = args.output
     
+    # Do not generate rules when minconf = -1
     if minconf == -1:
         print('Minconf is -1;exiting without writing file')
         exit()
