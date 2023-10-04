@@ -1,8 +1,8 @@
 # Phase 1:
 # Read input - done 
-# Generate F1
+# Generate - done
 # Create skeleton code
-# Create functions to generate output files 
+# Create functions to generate output files - done
 # Write code needed for plots
 # Initial Report & Current Draft
 
