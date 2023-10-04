@@ -38,11 +38,17 @@ def read_input(input_file):
     
     return item_counts, transactions
 
-def generate_f1(transactions, minsup):
+def generate_f1(item_counts, minsup):
     """
-    takes a dictionary of transactions with support counts, and a minimum support count;  returns a sorted list of items that  
+    takes a dictionary of items with support counts, and a minimum support count;  returns a sorted list of items that meet minsup 
     """
-    pass
+    f1_items = []
+    for item, count in item_counts.items():
+        if count >= minsup:
+            f1_items.append(item)
+    f1_items.sort()
+
+    return f1_items
 
 def write_output(output_file):
     """
@@ -70,6 +76,9 @@ def main():
         exit()
 
     item_counts, transactions = read_input(input_file)
+
+    f1_items = generate_f1(item_counts, minsup)
+    print(f1_items)
 
     # FOR TESTING - write output file 
     with open(output_file, 'w') as output:
