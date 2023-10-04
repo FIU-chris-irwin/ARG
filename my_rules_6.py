@@ -62,7 +62,8 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
     
     # write {output}_rules_6.txt
     if minconf != -1:
-        pass
+        with open(f'{output}_rules_6.txt', 'w') as rules:
+            rules.write('Dummy text. Will contain LHS|RHS|SUPPORT|CONFIDENCE\n')
 
     # write {output}_info_6.txt
     
