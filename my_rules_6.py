@@ -64,8 +64,6 @@ def generate_itemsets(item_counts, minsup):
     
     F[1] = f1_items
 
-    print(F)
-
     # candidate_generate(F[k]):
         # generates candidates for k+1 itemsets. Takes F[k] as a parameter. Returns the dictionary k_plus_one_candidates with the itemseset as key and 0 as the value
         # e.g. k_plus_one_candidates = {
