@@ -49,6 +49,45 @@ def generate_f1(item_counts, minsup):
     
     return dict(sorted(f1_items.items()))
 
+def generate_itemsets(item_counts, minsup):
+    """
+    
+    """
+    # create F to hold the itemsets. The key will be k and the value will be a dictionary that holds the k-itemset
+    F = {}
+
+    f1_items = {}
+
+    for item, count in item_counts.items():
+        if count >= minsup:
+            f1_items[item] = count
+    
+    F[1] = f1_items
+
+    print(F)
+
+    # candidate_generate(F[k]):
+        # generates candidates for k+1 itemsets. Takes F[k] as a parameter. Returns the dictionary k_plus_one_candidates with the itemseset as key and 0 as the value
+        # e.g. k_plus_one_candidates = {
+        #   '12': 0,
+        #   '13': 0,
+        #   '23': 0
+        # }
+    # candidate pruning
+        # prunes the candidates. Takes the candidate dictionary k_plus_one_candidates as a parameter. Returns k_plus_one_candidates.
+    # support counting
+        # assigns the support counts to the candidate itemsets. Takes the candidate dictionary k_plus_one_candidates and the transactions as parameters. 
+        # Adds the support count to the value in k_plus_one_candidates 
+        # e.g., k_plus_one_candidates = {
+        #   '12': 3,
+        #   '13': 4,
+        #   '23': 11
+        # }
+
+    # candidate elimination
+        # deletes candidates below the support count from the k_plus_one_candidates dictionary and adds the dictionary to F[k+1]. 
+        # takes the k_plus_one_candidates dictionary and minsup as paramters.
+
 def write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions):
     """
     writes three different output files that describe various aspects of the association rules
