@@ -110,6 +110,9 @@ def generate_itemsets(item_counts, minsup):
     
     def support_count(itemset):
         pass
+
+    def eliminate_candidates(itemset):
+        pass
     
     F = generate_1_itemsets(item_counts, minsup)
     generate_2_itemsets(F)
@@ -191,8 +194,6 @@ def main():
 
     write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions)
 
-    test = generate_itemsets(item_counts, minsup)
-    print(test)
 
 if __name__ == "__main__":
     main()
