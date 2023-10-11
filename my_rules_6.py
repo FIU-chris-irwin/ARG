@@ -40,37 +40,85 @@ def read_input(input_file):
 
 def generate_f1(item_counts, minsup):
     """
+    NOTE: This function is deprecated. Use generate_itemsets() instead
     takes a dictionary of items with support counts, and a minimum support count;  returns a sorted dictionary of items that meet minsup 
     """
+    
+    
     f1_items = {}
     for item, count in item_counts.items():
         if count >= minsup:
             f1_items[item] = count
     
-    return dict(sorted(f1_items.items()))
+    return dict(sorted(f1_items.items()))\
+    
 
 def generate_itemsets(item_counts, minsup):
     """
-    
+    Takes the item counts and minsup as a paramter and generates candidate itemsets using the k-1 x k-1 method
     """
-    # create F to hold the itemsets. The key will be k and the value will be a dictionary that holds the k-itemset
-    F = {}
 
-    f1_items = {}
+    def generate_1_itemsets(item_counts, minsup):
+        # create F to hold the itemsets. The key will be k and the value will be a dictionary that holds the k-itemset
+        F = {}
 
-    for item, count in item_counts.items():
-        if count >= minsup:
-            f1_items[item] = count
+        # 1-itemset is the base case and is generated through comparison between support count and minsup
+        f1_items = {}
+
+        for item, count in item_counts.items():
+            if count >= minsup:
+                f1_items[(item)] = count
+        
+        # sort the dictionary and add to F at F[1]
+        f1_items = dict(sorted(f1_items.items()))
+        F[1] = f1_items
+        return F
+
+
+    def generate_2_itemsets(frequent_items):
+        
+        two_item_candidates = {}
+
+        for item_1 in F[1].keys():
+            for item_2 in F[1].keys():
+                #prevent backtracking in combining items to generate candidates
+                if item_1 < item_2:
+                    key = (int(item_1), int(item_2))
+
+                    two_item_candidates[key] = 0
     
-    F[1] = f1_items
+        F[2] = two_item_candidates
+        return(F)
+    
+    def prune_candidates(candidate, k):
+        pass
+    
+    def generate_candidate_itemsets(k_minus_1_itemset):
+        k = len(list(k_minus_1_itemset.keys())[0]) + 1 if k_minus_1_itemset else 2
+        candidates = {}
 
-    # candidate_generate(F[k]):
-        # generates candidates for k+1 itemsets. Takes F[k] as a parameter. Returns the dictionary k_plus_one_candidates with the itemseset as key and 0 as the value
-        # e.g. k_plus_one_candidates = {
-        #   '12': 0,
-        #   '13': 0,
-        #   '23': 0
-        # }
+        items = sorted(k_minus_1_itemset.keys())
+        
+        for i in range(len(items)):
+            for j in range(i+1, len(items)):
+                # Check if the first k-2 items are the same
+                if items[i][:k-2] == items[j][:k-2] and items[i][k-2] < items[j][k-2]:
+                    candidate = items[i] + (items[j][k-2],)
+                    candidates[candidate] = 0
+
+        return candidates
+    
+    def support_count(itemset):
+        pass
+    
+    F = generate_1_itemsets(item_counts, minsup)
+    generate_2_itemsets(F)
+    F[3] = generate_candidate_itemsets(F[2])
+
+    return F
+
+
+
     # candidate pruning
         # prunes the candidates. Takes the candidate dictionary k_plus_one_candidates as a parameter. Returns k_plus_one_candidates.
     # support counting
@@ -142,6 +190,9 @@ def main():
     f1_items = generate_f1(item_counts, minsup)
 
     write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions)
+
+    test = generate_itemsets(item_counts, minsup)
+    print(test)
 
 if __name__ == "__main__":
     main()
