@@ -7,6 +7,7 @@
 # Initial Report & Current Draft
 
 import argparse
+import matplotlib.pyplot as plt
 
 def read_input(input_file):
     """
@@ -53,7 +54,7 @@ def generate_f1(item_counts, minsup):
     return dict(sorted(f1_items.items()))\
     
 
-def generate_itemsets(item_counts, minsup):
+def generate_itemsets(item_counts, minsup, transactions, output):
     """
     Takes the item counts and minsup as a paramter and generates candidate itemsets using the k-1 x k-1 method
     """
@@ -105,18 +106,57 @@ def generate_itemsets(item_counts, minsup):
                 if items[i][:k-2] == items[j][:k-2] and items[i][k-2] < items[j][k-2]:
                     candidate = items[i] + (items[j][k-2],)
                     candidates[candidate] = 0
-
         return candidates
     
-    def support_count(itemset):
-        pass
 
-    def eliminate_candidates(itemset):
-        pass
-    
+    def support_count(itemsets, transactions):
+        # creates dictionary with support count and eliminates candidates under minsup
+        support_counts = {}
+        for itemset in itemsets:
+            count = 0
+            for transaction in transactions.values():
+                if all(item in transaction for item in itemset):
+                    count += 1
+
+            if count >= minsup:
+                support_counts[itemset] = count
+        return support_counts
+
+    yval_items = []
+
     F = generate_1_itemsets(item_counts, minsup)
     generate_2_itemsets(F)
-    F[3] = generate_candidate_itemsets(F[2])
+    F[2] = support_count(F[2],transactions)
+    k_count = 3
+    F[k_count] = generate_candidate_itemsets(F[2])
+    F_k_sup = support_count(F[k_count - 1], transactions)
+
+    yval_items.append(len(F[1]))
+    yval_items.append(len(F_k_sup))
+
+    while F_k_sup: # loop that finds F[k] until it is empty
+        F_k = generate_candidate_itemsets(F[k_count - 1])
+        F_k_sup = support_count(F_k, transactions)
+        yval_items.append(len(F_k_sup))
+        F[k_count] = F_k_sup
+        
+        k_count += 1
+    
+    xval_items = list(range(1,k_count-1))
+    yval_items.pop()
+
+    plt.bar(xval_items, yval_items)
+    plt.xlabel("k")
+    plt.ylabel("Number of frequent k-itemsets")
+    plt.title("Plot items")
+    plt.xticks(xval_items)
+    plt.yticks(yval_items)
+    plt.savefig(f"{output}_plot_items_6.png")
+
+    # F[3] = generate_candidate_itemsets(F[2])
+    # suptest = support_count(F[2],transactions)
+    # print(suptest)
+
 
     return F
 
@@ -193,6 +233,10 @@ def main():
     f1_items = generate_f1(item_counts, minsup)
 
     write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions)
+
+    # test = generate_itemsets(item_counts, minsup, transactions, output)
+    # test.popitem()
+    # print(test)
 
 
 if __name__ == "__main__":
