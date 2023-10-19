@@ -8,6 +8,9 @@
 
 import argparse
 import matplotlib.pyplot as plt
+from itertools import combinations
+import time
+
 
 def read_input(input_file):
     """
@@ -58,7 +61,6 @@ def generate_itemsets(item_counts, minsup, transactions, output):
     """
     Takes the item counts and minsup as a paramter and generates candidate itemsets using the k-1 x k-1 method
     """
-
     def generate_1_itemsets(item_counts, minsup):
         # create F to hold the itemsets. The key will be k and the value will be a dictionary that holds the k-itemset
         F = {}
@@ -157,8 +159,45 @@ def generate_itemsets(item_counts, minsup, transactions, output):
     # suptest = support_count(F[2],transactions)
     # print(suptest)
 
-
     return F
+
+
+
+def generate_association_rules(frequent_itemset, transactions, minconf):
+    association_rules = []
+    
+    for i in range(1, len(frequent_itemset)):
+        for combo in combinations(frequent_itemset, i):
+            left = set(combo)
+            right = frequent_itemset - left
+            rule = (left, right)
+            confidence = calculate_confidence(rule, transactions)
+            if confidence >= minconf:
+                association_rules.append((rule,confidence))
+
+    return association_rules
+
+def format_rule(rule):
+    left, right = rule
+    return f"{' '.join(map(str, left))}|{' '.join(map(str, right))}"
+
+def calculate_support(itemset, transactions):
+    count = 0
+    for transaction in transactions.values():
+        if all(item in transaction for item in itemset):
+            count += 1
+    return count
+
+def calculate_confidence(rule, transactions):
+    left, right = rule
+    itemset_union = left.union(right)
+    support_itemset_union = calculate_support(itemset_union, transactions)
+    support_left = calculate_support(left, transactions)
+    if support_left == 0:
+        return 0  # Avoid division by zero
+    confidence = support_itemset_union / support_left
+    return confidence
+
 
 
 
@@ -177,21 +216,69 @@ def generate_itemsets(item_counts, minsup, transactions, output):
         # deletes candidates below the support count from the k_plus_one_candidates dictionary and adds the dictionary to F[k+1]. 
         # takes the k_plus_one_candidates dictionary and minsup as paramters.
 
-def write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions):
+def write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions, test, itemset_time):
     """
     writes three different output files that describe various aspects of the association rules
     """
-    f1_items, minsup, minconf, input_file, output, item_counts, transactions = f1_items, minsup, minconf, input_file, output, item_counts, transactions
+    f1_items, minsup, minconf, input_file, output, item_counts, transactions, test = f1_items, minsup, minconf, input_file, output, item_counts, transactions, test
     
+    confcount, maxconf = 0, 0
+
+    def convert_to_str(key):
+        if isinstance(key, tuple):
+            return ' '.join(map(str, key))
+        return str(key)
+
     # write {output}_items_6.txt
     with open(f'{output}_items_6.txt', 'w') as items:
-        for itemset, count in f1_items.items():
-            items.write(f'item{itemset}|{count}\n')
+        for outer_key, inner_dict in test.items():
+            for inner_key, value in inner_dict.items():
+                inner_key_str = convert_to_str(inner_key)
+                items.write(f'{inner_key_str}|{value}\n')
     
     # write {output}_rules_6.txt
+    hiconf_count = 0
+    k_rule = 0
+    rule_count = 0
+    k_list, rule_list = [], []
     if minconf != -1:
         with open(f'{output}_rules_6.txt', 'w') as rules:
-            rules.write('Dummy text. Will contain LHS|RHS|SUPPORT|CONFIDENCE\n')
+            start = time.time()
+            for outer_key, inner_dict in test.items():
+                hiconf_count = 0
+                k_rule += 1
+                k_list.append(k_rule)
+                for inner_key, value in inner_dict.items():
+                    if isinstance(inner_key,int):
+                        continue
+                    frequent_itemset = set(inner_key)
+                    support = value/len(transactions)
+                    support = str(round(support, 2))
+                    start = time.time()
+                    association_rules = generate_association_rules(frequent_itemset,transactions,minconf)
+                    hiconf_count += (len(association_rules))
+                    for rule, confidence in association_rules:
+                        confcount += 1
+                        rules.write(f"{format_rule(rule)}|{support}|{round(confidence,2)}\n")
+                        maxconf = max(confidence,maxconf)
+                        if confidence == maxconf:
+                            maxrule = format_rule(rule)
+                rule_list.append(hiconf_count)
+            end = time.time()
+            rule_time = end - start
+            k_list.pop(0)
+            rule_list.pop(0)
+
+    plt.clf()
+    plt.bar(k_list, rule_list)
+    plt.xlabel("k")
+    plt.ylabel("Number of high-confidence rules")
+    plt.title("Plot rules")
+    plt.xticks(k_list)
+    plt.yticks(rule_list)
+    plt.savefig(f"{output}_plot_rules_6.png")
+
+
 
     # write {output}_info_6.txt
     
@@ -200,12 +287,22 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
         info.write(f"minconf: {minconf} \n")
         info.write(f"input file: {input_file} \n")
         info.write(f"output name: {output} \n")
-        info.write(f"number of items: {len(item_counts)}\n")
-        info.write(f"number of transactions: {len(transactions)}\n")
-        for transaction, list in transactions.items():
-             info.write(f"Transaction {transaction}: {list}\n")
-        for item, count in item_counts.items():
-             info.write(f"Item {item}: {count} times\n")
+        info.write(f"Number of items: {len(item_counts)}\n")
+        info.write(f"Number of transactions: {len(transactions)}\n")
+        info.write(f"The length of the largest frequent k-itemset: {list(test)[-1]}\n")
+        totalfrequent = 0
+        for outer_key, inner_dict in test.items():
+            info.write(f"Number of frequent {outer_key}-itemsets: {len(inner_dict)}\n")
+            totalfrequent += len(inner_dict)
+        info.write(f"Total number of frequent itemsets: {totalfrequent}\n")
+        info.write(f"Number of high confidence rules: {confcount}\n")
+        info.write(f"The rule with the highest confidence: {maxrule}\n")
+        info.write(f"Time in seconds to find the frequent itemsets: {itemset_time}\n")
+        info.write(f"Time in seconds to find the confident rules: {rule_time}\n")
+        # for transaction, list in transactions.items():
+        #      info.write(f"Transaction {transaction}: {list}\n")
+        # for item, count in item_counts.items():
+        #      info.write(f"Item {item}: {count} times\n")
     
 
 def main():
@@ -232,11 +329,17 @@ def main():
 
     f1_items = generate_f1(item_counts, minsup)
 
-    write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions)
-
-    # test = generate_itemsets(item_counts, minsup, transactions, output)
-    # test.popitem()
+    
+    start = time.time()
+    test = generate_itemsets(item_counts, minsup, transactions, output)
+    end = time.time()
+    itemset_time = end - start
+    test.popitem()
     # print(test)
+
+
+
+    write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions, test, itemset_time)
 
 
 if __name__ == "__main__":
