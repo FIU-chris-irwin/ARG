@@ -94,7 +94,11 @@ def generate_itemsets(item_counts, minsup, transactions, output):
         return(F)
     
     def prune_candidates(candidate, k):
-        pass
+        subsets = combinations(candidate, k-1)
+        for subset in subsets:
+            if subset not in F[k-1]:
+                return False
+        return True
     
     def generate_candidate_itemsets(k_minus_1_itemset):
         k = len(list(k_minus_1_itemset.keys())[0]) + 1 if k_minus_1_itemset else 2
@@ -107,7 +111,8 @@ def generate_itemsets(item_counts, minsup, transactions, output):
                 # Check if the first k-2 items are the same
                 if items[i][:k-2] == items[j][:k-2] and items[i][k-2] < items[j][k-2]:
                     candidate = items[i] + (items[j][k-2],)
-                    candidates[candidate] = 0
+                    if prune_candidates(candidate, k):
+                        candidates[candidate] = 0
         return candidates
     
 
