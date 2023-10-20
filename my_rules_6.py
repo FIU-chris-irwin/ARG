@@ -42,7 +42,22 @@ def read_input(input_file):
     
     return item_counts, transactions
 
-def generate_itemsets(item_counts, minsup, transactions, output):
+def generate_f1(item_counts, minsup):
+    """
+    NOTE: This function is deprecated. Use generate_itemsets() instead
+    takes a dictionary of items with support counts, and a minimum support count;  returns a sorted dictionary of items that meet minsup 
+    """
+    
+    
+    f1_items = {}
+    for item, count in item_counts.items():
+        if count >= minsup:
+            f1_items[item] = count
+    
+    return dict(sorted(f1_items.items()))\
+    
+
+def generate_itemsets(item_counts, minsup):
     """
     Takes the item counts and minsup as a paramter and generates candidate itemsets using the k-1 x k-1 method
     """
@@ -321,14 +336,7 @@ def main():
 
     #f1_items = generate_f1(item_counts, minsup)
 
-    
-    start = time.time()
-    test = generate_itemsets(item_counts, minsup, transactions, output)
-    end = time.time()
-    itemset_time = end - start
-    test.popitem()
- 
-    write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions, test, itemset_time)
+    write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions)
 
 
 if __name__ == "__main__":
