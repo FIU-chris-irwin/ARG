@@ -244,8 +244,7 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
     # write {output}_rules_6.txt
     hiconf_count = 0
     k_rule = 0
-    maxrule = 0
-    rule_time = 0
+    rule_count = 0
     k_list, rule_list = [], []
     if minconf != -1:
         with open(f'{output}_rules_6.txt', 'w') as rules:
@@ -275,15 +274,14 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
             k_list.pop(0)
             rule_list.pop(0)
 
-    if minconf != -1:
-        plt.clf()
-        plt.bar(k_list, rule_list)
-        plt.xlabel("k")
-        plt.ylabel("Number of high-confidence rules")
-        plt.title("Plot rules")
-        plt.xticks(k_list)
-        plt.yticks(rule_list)
-        plt.savefig(f"{output}_plot_rules_6.png")
+    plt.clf()
+    plt.bar(k_list, rule_list)
+    plt.xlabel("k")
+    plt.ylabel("Number of high-confidence rules")
+    plt.title("Plot rules")
+    plt.xticks(k_list)
+    plt.yticks(rule_list)
+    plt.savefig(f"{output}_plot_rules_6.png")
 
 
 
@@ -328,9 +326,9 @@ def main():
     output= args.output
     
     # Do not generate rules when minconf = -1
-    # if minconf == -1:
-    #     print('Minconf is -1;exiting without writing file')
-    #     exit()
+    if minconf == -1:
+        print('Minconf is -1;exiting without writing file')
+        exit()
 
     item_counts, transactions = read_input(input_file)
 
