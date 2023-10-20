@@ -246,6 +246,7 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
     k_rule = 0
     maxrule = 0
     rule_count = 0
+
     k_list, rule_list = [], []
     if minconf != -1:
         with open(f'{output}_rules_6.txt', 'w') as rules:
