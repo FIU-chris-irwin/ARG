@@ -10,6 +10,7 @@ import argparse
 import matplotlib.pyplot as plt
 from itertools import combinations
 import time
+import numpy as np
 
 
 def read_input(input_file):
@@ -64,7 +65,6 @@ def generate_itemsets(item_counts, minsup, transactions, output):
     def generate_1_itemsets(item_counts, minsup):
         # create F to hold the itemsets. The key will be k and the value will be a dictionary that holds the k-itemset
         F = {}
-
         # 1-itemset is the base case and is generated through comparison between support count and minsup
         f1_items = {}
 
@@ -170,7 +170,7 @@ def generate_itemsets(item_counts, minsup, transactions, output):
 
 def generate_association_rules(frequent_itemset, transactions, minconf):
     association_rules = []
-    
+    # print(type(association_rules))
     for i in range(1, len(frequent_itemset)):
         for combo in combinations(frequent_itemset, i):
             left = set(combo)
@@ -244,6 +244,7 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
     # write {output}_rules_6.txt
     hiconf_count = 0
     k_rule = 0
+    maxrule = 0
     rule_count = 0
     k_list, rule_list = [], []
     if minconf != -1:
@@ -274,15 +275,15 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
             k_list.pop(0)
             rule_list.pop(0)
 
-    plt.clf()
-    plt.bar(k_list, rule_list)
-    plt.xlabel("k")
-    plt.ylabel("Number of high-confidence rules")
-    plt.title("Plot rules")
-    plt.xticks(k_list)
-    plt.yticks(rule_list)
-    plt.savefig(f"{output}_plot_rules_6.png")
-
+    if minconf != -1:
+        plt.clf()
+        plt.bar(k_list, rule_list)
+        plt.xlabel("k")
+        plt.ylabel("Number of high-confidence rules")
+        plt.title("Plot rules")
+        plt.xticks(k_list)
+        plt.yticks(rule_list)
+        plt.savefig(f"{output}_plot_rules_6.png")
 
 
     # write {output}_info_6.txt
@@ -308,6 +309,7 @@ def write_output(f1_items, minsup, minconf, input_file, output, item_counts, tra
         #      info.write(f"Transaction {transaction}: {list}\n")
         # for item, count in item_counts.items():
         #      info.write(f"Item {item}: {count} times\n")
+    return rule_time
     
 
 def main():
@@ -326,9 +328,9 @@ def main():
     output= args.output
     
     # Do not generate rules when minconf = -1
-    if minconf == -1:
-        print('Minconf is -1;exiting without writing file')
-        exit()
+    # if minconf == -1:
+    #     print('Minconf is -1;exiting without writing file')
+    #     exit()
 
     item_counts, transactions = read_input(input_file)
 
@@ -343,9 +345,20 @@ def main():
     # print(test)
 
 
+    # start_time = time.time()
+    rule_time = write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions, test, itemset_time)
+    # end_time = time.time()
+    # rule_time = end_time-start_time
+    # print(type(rule_time))
+    time_x = np.array(['Frequent_itemset_time', 'rule_generation_time'])
+    time_y = np.array([itemset_time,rule_time])
+    # time_y = np.array([1,1])
+
+    plt.clf()
+    plt.bar(time_x,time_y)
+    plt.savefig(f"{output}_time_6.png")
 
     write_output(f1_items, minsup, minconf, input_file, output, item_counts, transactions, test, itemset_time)
-
 
 if __name__ == "__main__":
     main()

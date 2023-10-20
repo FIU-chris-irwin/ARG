@@ -1,0 +1,12 @@
+minsup: 120 
+minconf: 0.9 
+input file: small 
+output name: 1209 
+Number of items: 8743
+Number of transactions: 3056
+The length of the largest frequent k-itemset: 3
+Number of frequent 1-itemsets: 77
+Number of frequent 2-itemsets: 66
+Number of frequent 3-itemsets: 5
+Total number of frequent itemsets: 148
+Number of high confidence rules: 0

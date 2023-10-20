@@ -1,0 +1,16 @@
+minsup: 50 
+minconf: 0.8 
+input file: small 
+output name: 508 
+Number of items: 8743
+Number of transactions: 3056
+The length of the largest frequent k-itemset: 4
+Number of frequent 1-itemsets: 396
+Number of frequent 2-itemsets: 607
+Number of frequent 3-itemsets: 175
+Number of frequent 4-itemsets: 17
+Total number of frequent itemsets: 1195
+Number of high confidence rules: 367
+The rule with the highest confidence: 649 4834 1285|1
+Time in seconds to find the frequent itemsets: 183.009836435318
+Time in seconds to find the confident rules: 0.056382179260253906
